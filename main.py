@@ -1,9 +1,12 @@
 from pieces import *
 from copy import copy
+from OpenGL.GL import *
+from OpenGL.GLUT import *
+from utils import *
 import sys
 
 uniDict = {WHITE : {Pawn : "♙", Rook : "♖", Knight : "♘", Bishop : "♗", King : "♔", Queen : "♕" }, BLACK : {Pawn : "♟", Rook : "♜", Knight : "♞", Bishop : "♝", King : "♚", Queen : "♛" }}
-
+WSIZE = 720     # 画面サイズ
 opponent = {WHITE: BLACK,BLACK: WHITE}
 
 class Game:
@@ -14,7 +17,10 @@ class Game:
         self.gameboard = {}
         self.placePieces()
         print("chess program. enter moves in algebraic notation separated by space")
+        self.glmain()
+        
         self.main()
+        
 
         
     def placePieces(self):
@@ -32,8 +38,7 @@ class Game:
 
         
     def main(self):
-        
-        while True:
+        #while True:
             self.printBoard()
             print(self.message)
             self.message = ""
@@ -48,7 +53,6 @@ class Game:
                 print("found "+str(target))
                 if target.Color != self.playersturn:
                     self.message = "you aren't allowed to move that piece this turn"
-                    continue
                 if self.isValidMove(startpos,endpos,target.Color,self.gameboard):
                     self.message = "that is a valid move"
                     self.renewGameboard(startpos,endpos,self.gameboard)
@@ -145,5 +149,26 @@ class Game:
                 print(str(item)+' |', end = " ")
             print()
         print("-"*32)
+
+    def draw(self):
+        '''描画コールバック'''
+        glClearColor(0.6, 0.4, 0.2, 1.0)
+        glClear(GL_COLOR_BUFFER_BIT)
+        glColor(1, 0, 0)
+        #square(0, 0)
+        draw_squares()
+        draw_file()
+        draw_rank()
+        glutSwapBuffers()   # 強制描画
+        
+    def glmain(self):
+        glutInit(sys.argv)
+        glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGBA)    # 表示設定
+        glutInitWindowSize(WSIZE, WSIZE)                # 画面サイズ
+        glutInitWindowPosition(0, 0)                    # 画面の表示位置
+        glutCreateWindow(b'Chess')                      # ウィンドウの名前
+        glutDisplayFunc(self.draw)                      # 描画
+        glOrtho(-1.0, 8.0, -1.0, 8.0, -4, 4)
+        glutMainLoop()
 
 Game()
